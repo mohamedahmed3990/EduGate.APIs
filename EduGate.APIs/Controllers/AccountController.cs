@@ -41,6 +41,7 @@ namespace EduGate.APIs.Controllers
                 DisplayName = user.DisplayName,
                 UserName = user.UserName,
                 Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
                 Token = await _authService.CreateTokenAsync(user, _userManager)
             });
         }
@@ -50,7 +51,10 @@ namespace EduGate.APIs.Controllers
         public async Task<ActionResult<UserDto>> Register(RegisterDto model)
         {
             if (CheckEmailExists(model.Email).Result.Value)
-                return BadRequest(new ApiValidationErrorResponse() {Errors = new string[] { "This Email is already in user!!" } });
+                return BadRequest(new ApiValidationErrorResponse() {Errors = new string[] { "This Email is already in exist!!" } });
+            
+            if (CheckUserName(model.Email.Split('@')[0]).Result.Value)
+                return BadRequest(new ApiValidationErrorResponse() {Errors = new string[] { "This UserName is already in exist!!" } });
 
             var user = new AppUser()
             {
@@ -71,6 +75,7 @@ namespace EduGate.APIs.Controllers
                 DisplayName = user.DisplayName,
                 Email = user.Email,
                 UserName = user.UserName,
+                PhoneNumber = user.PhoneNumber,
                 Token = await _authService.CreateTokenAsync(user, _userManager)
             });
         }
@@ -89,7 +94,6 @@ namespace EduGate.APIs.Controllers
                 Email = user.Email,
                 UserName = user.UserName,
                 PhoneNumber = user.PhoneNumber,
-                Token = await _authService.CreateTokenAsync(user,_userManager)
             });
         }
 
@@ -98,6 +102,10 @@ namespace EduGate.APIs.Controllers
         public async Task<ActionResult<bool>> CheckEmailExists(string email)
         {
             return await _userManager.FindByEmailAsync(email) is not null;
+        }
+        private async Task<ActionResult<bool>> CheckUserName(string userName)
+        {
+            return await _userManager.FindByNameAsync(userName) is not null;
         }
 
 
@@ -110,9 +118,7 @@ namespace EduGate.APIs.Controllers
             var user = await _userManager.FindByEmailAsync(email);
 
             user.DisplayName = updateUserDto.DisplayName;
-            user.Email = updateUserDto.Email;
             user.PhoneNumber = updateUserDto.PhoneNumber;
-            user.UserName = updateUserDto.Email.Split('@')[0];
 
             var result = await _userManager.UpdateAsync(user);
 
@@ -123,7 +129,6 @@ namespace EduGate.APIs.Controllers
                 Email = user.Email,
                 UserName = user.UserName,
                 PhoneNumber = user.PhoneNumber,
-                Token = await _authService.CreateTokenAsync(user, _userManager)
             });
         }
 

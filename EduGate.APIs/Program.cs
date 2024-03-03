@@ -58,6 +58,7 @@ namespace EduGate.APIs
                 };
             });
 
+            webApplicationBuilder.Services.AddHttpClient();
             #endregion
 
             var app = webApplicationBuilder.Build();
@@ -88,12 +89,16 @@ namespace EduGate.APIs
             // Configure the HTTP request pipeline.
 
             app.UseMiddleware<ExceptionMiddleware>();
-
-            if (app.Environment.IsDevelopment())
+            
+            //if (app.Environment.IsDevelopment())
+            //{
+            app.UseSwagger();
+            app.UseSwaggerUI(option =>
             {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+                option.SwaggerEndpoint("/swagger/v1/swagger.json", "EduGate");
+                option.RoutePrefix = String.Empty;
+            });
+            //}
             app.UseStatusCodePagesWithRedirects("/errors/{0}");
 
             app.UseStaticFiles();

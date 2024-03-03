@@ -1,6 +1,9 @@
 ﻿using EduGate.APIs.DTOs;
 using EduGate.APIs.Errors;
+using EduGate.Core.Entities.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EduGate.APIs.Controllers
@@ -9,26 +12,29 @@ namespace EduGate.APIs.Controllers
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IConfiguration _configuration;
+        private readonly UserManager<AppUser> _userManager;
 
-        public UploadImageController(IWebHostEnvironment webHostEnvironment, IConfiguration configuration)
+        public UploadImageController(IWebHostEnvironment webHostEnvironment, IConfiguration configuration, UserManager<AppUser> userManager)
         {
             _webHostEnvironment = webHostEnvironment;
            _configuration = configuration;
+            _userManager = userManager;
         }
 
 
         [HttpPut("uploadfile")]
-        public async Task<ActionResult> UploadImage(IFormFile formFile, string studentId)
+        public async Task<ActionResult<ImagePathReturn>> UploadImage(IFormFile formFile, string studentId)
         {
             try
             {
-                string Filepath = _webHostEnvironment.WebRootPath + "\\Upload\\student\\";
+                string Filepath = $"{_webHostEnvironment.WebRootPath}/Upload/student";
                 if (!System.IO.Directory.Exists(Filepath))
                 {
                     System.IO.Directory.CreateDirectory(Filepath);
                 }
 
-                string imagepath = Filepath + "\\" + studentId + ".png";
+
+                string imagepath = $"{Filepath}/{studentId}.png";
                 if (System.IO.File.Exists(imagepath))
                 {
                     System.IO.File.Delete(imagepath);
@@ -46,17 +52,28 @@ namespace EduGate.APIs.Controllers
 
             }
 
-            return Ok("Image Saved Successfully");
+            var user = await _userManager.FindByNameAsync(studentId);
+            if (user is null) return BadRequest(new ApiResponse(400));
+
+            ImagePathReturn imageReturn = new ImagePathReturn()
+            {
+                ImageUrl = user.PictureUrl,
+                Message = "Image Uploaded Successfully"
+            };
+
+            return Ok(imageReturn);
+            
         }
 
+        [Authorize]
         [HttpGet("GetImage")]
-        public async Task<IActionResult> GetImage(string studentId)
+        public async Task<ActionResult<ImagePathReturn>> GetImage(string studentId)
         {
             string Imageurl = string.Empty;
             try
             {
                 string Filepath = $"{_webHostEnvironment.WebRootPath}/Upload/student/";
-                string imagepath = Filepath + "\\" + studentId + ".png";
+                string imagepath = $"{Filepath}/{studentId}.png";
                 if (System.IO.File.Exists(imagepath))
                 {
                     Imageurl = $"{_configuration["BaseUrl"]}/Upload/student/{studentId}.png";
@@ -68,9 +85,17 @@ namespace EduGate.APIs.Controllers
             }
             catch (Exception ex)
             {
+                return BadRequest(new ApiExceptionResponse(500, ex.Message));
             }
-            return Ok(Imageurl);
+
+            return Ok(new ImagePathReturn()
+            {
+                ImageUrl = Imageurl,
+                Message = "Image Returned Successfully"
+            });
         }
+
+        
     }
 }
 
