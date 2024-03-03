@@ -1,4 +1,5 @@
-﻿using EduGate.Core.Entities.Identity;
+﻿using EduGate.Core.Entities;
+using EduGate.Core.Entities.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -21,6 +22,14 @@ namespace EduGate.Repositroy.Identity
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
         }
+
+        public DbSet<Doctor> Doctors { get; set; }
+        public DbSet<Course> Courses { get; set; }
+
+        public DbSet<Student> Students { get; set; }
+
+        public DbSet<Attendence> Attenants { get; set; }
     }
 }

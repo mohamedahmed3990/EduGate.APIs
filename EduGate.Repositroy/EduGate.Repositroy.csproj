@@ -14,4 +14,8 @@
     <ProjectReference Include="..\EduGate.Core\EduGate.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Data\" />
+  </ItemGroup>
+
 </Project>

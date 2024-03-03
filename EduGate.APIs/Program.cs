@@ -3,7 +3,6 @@ using EduGate.APIs.Extentions;
 using EduGate.APIs.Middlewares;
 using EduGate.Core.Entities.Identity;
 using EduGate.Core.Services.Contract;
-using EduGate.Repositroy.Data;
 using EduGate.Repositroy.Identity;
 using EduGate.Service;
 using Microsoft.AspNetCore.Identity;
@@ -28,10 +27,10 @@ namespace EduGate.APIs
             webApplicationBuilder.Services.AddSwaggerGen();
 
 
-            webApplicationBuilder.Services.AddDbContext<EduGateContext>(options =>
-            {
-                options.UseSqlServer(webApplicationBuilder.Configuration.GetConnectionString("DefaultConnection"));
-            });
+            //webApplicationBuilder.Services.AddDbContext<EduGateContext>(options =>
+            //{
+            //    options.UseSqlServer(webApplicationBuilder.Configuration.GetConnectionString("DefaultConnection"));
+            //});
 
             webApplicationBuilder.Services.AddDbContext<AppIdentityDbContext>(options =>
             {
