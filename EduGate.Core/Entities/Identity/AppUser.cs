@@ -10,9 +10,7 @@ namespace EduGate.Core.Entities.Identity
     public class AppUser : IdentityUser
     {
         public string DisplayName { get; set; }
-        public string PictureUrl { get; set; }
-
-      
+        public virtual string PictureUrl { get; set; }
 
     }
 }

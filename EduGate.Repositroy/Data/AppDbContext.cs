@@ -6,14 +6,15 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace EduGate.Repositroy.Identity
 {
-    public class AppIdentityDbContext : IdentityDbContext<AppUser>
+    public class AppDbContext : IdentityDbContext<AppUser>
     {
-        public AppIdentityDbContext(DbContextOptions<AppIdentityDbContext> options)
+        public AppDbContext(DbContextOptions<AppDbContext> options)
             :base(options)
         {
             
@@ -23,13 +24,10 @@ namespace EduGate.Repositroy.Identity
         {
             base.OnModelCreating(builder);
 
+            builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }
 
         public DbSet<Doctor> Doctors { get; set; }
-        public DbSet<Course> Courses { get; set; }
-
-        public DbSet<Student> Students { get; set; }
-
-        public DbSet<Attendence> Attenants { get; set; }
+        
     }
 }

@@ -4,16 +4,18 @@ using EduGate.Repositroy.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace EduGate.Repositroy.Identity.Migrations
+namespace EduGate.Repositroy.Data.Migrations
 {
-    [DbContext(typeof(AppIdentityDbContext))]
-    partial class AppIdentityDbContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(AppDbContext))]
+    [Migration("20240314171142_AddAllModels")]
+    partial class AddAllModels
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,37 +24,7 @@ namespace EduGate.Repositroy.Identity.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("CourseDoctor", b =>
-                {
-                    b.Property<int>("CoursesId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("DoctorsId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("CoursesId", "DoctorsId");
-
-                    b.HasIndex("DoctorsId");
-
-                    b.ToTable("CourseDoctor");
-                });
-
-            modelBuilder.Entity("CourseStudent", b =>
-                {
-                    b.Property<int>("CoursesId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("StudentsId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CoursesId", "StudentsId");
-
-                    b.HasIndex("StudentsId");
-
-                    b.ToTable("CourseStudent");
-                });
-
-            modelBuilder.Entity("EduGate.Core.Entities.Attendence", b =>
+            modelBuilder.Entity("EduGate.Core.Entities.Attendance", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -60,25 +32,28 @@ namespace EduGate.Repositroy.Identity.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<DateTime>("AttendanceDate")
+                    b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("CourseId")
+                    b.Property<int>("LectureNumber")
                         .HasColumnType("int");
 
-                    b.Property<int>("LectureNumber")
+                    b.Property<int>("StudentCourseGroup")
                         .HasColumnType("int");
 
                     b.Property<int>("StudentId")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.Property<int>("studentCourseGroupId")
+                        .HasColumnType("int");
 
-                    b.HasIndex("CourseId");
+                    b.HasKey("Id");
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("Attenants");
+                    b.HasIndex("studentCourseGroupId");
+
+                    b.ToTable("Attendance");
                 });
 
             modelBuilder.Entity("EduGate.Core.Entities.Course", b =>
@@ -91,15 +66,69 @@ namespace EduGate.Repositroy.Identity.Migrations
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("CourseName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Courses");
+                    b.HasIndex("CourseName", "Code")
+                        .IsUnique();
+
+                    b.ToTable("Course");
+                });
+
+            modelBuilder.Entity("EduGate.Core.Entities.DoctorCourseGroup", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DoctorId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("GroupId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DoctorId");
+
+                    b.HasIndex("GroupId");
+
+                    b.HasIndex("CourseId", "GroupId")
+                        .IsUnique();
+
+                    b.ToTable("DoctorCourseGroup");
+                });
+
+            modelBuilder.Entity("EduGate.Core.Entities.Group", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("GroupNumber")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GroupNumber")
+                        .IsUnique();
+
+                    b.ToTable("Group");
                 });
 
             modelBuilder.Entity("EduGate.Core.Entities.Identity.AppUser", b =>
@@ -112,6 +141,10 @@ namespace EduGate.Repositroy.Identity.Migrations
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DisplayName")
@@ -173,62 +206,8 @@ namespace EduGate.Repositroy.Identity.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
-                });
 
-            modelBuilder.Entity("EduGate.Core.Entities.Identity.Doctor", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("DisplayName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NormalizedUserName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("SecurityStamp")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("UserName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Doctors");
+                    b.HasDiscriminator<string>("Discriminator").HasValue("AppUser");
                 });
 
             modelBuilder.Entity("EduGate.Core.Entities.Student", b =>
@@ -241,11 +220,36 @@ namespace EduGate.Repositroy.Identity.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Students");
+                    b.ToTable("Student");
+                });
+
+            modelBuilder.Entity("EduGate.Core.Entities.StudentCourseGroup", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("DoctorCourseGroupId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DoctorCourseGroupId");
+
+                    b.HasIndex("StudentId", "DoctorCourseGroupId")
+                        .IsUnique();
+
+                    b.ToTable("StudentCourseGroup");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -381,51 +385,74 @@ namespace EduGate.Repositroy.Identity.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("CourseDoctor", b =>
+            modelBuilder.Entity("EduGate.Core.Entities.Identity.Doctor", b =>
                 {
-                    b.HasOne("EduGate.Core.Entities.Course", null)
-                        .WithMany()
-                        .HasForeignKey("CoursesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasBaseType("EduGate.Core.Entities.Identity.AppUser");
 
-                    b.HasOne("EduGate.Core.Entities.Identity.Doctor", null)
-                        .WithMany()
-                        .HasForeignKey("DoctorsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasDiscriminator().HasValue("Doctor");
                 });
 
-            modelBuilder.Entity("CourseStudent", b =>
+            modelBuilder.Entity("EduGate.Core.Entities.Attendance", b =>
                 {
-                    b.HasOne("EduGate.Core.Entities.Course", null)
-                        .WithMany()
-                        .HasForeignKey("CoursesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("EduGate.Core.Entities.Student", null)
-                        .WithMany()
-                        .HasForeignKey("StudentsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("EduGate.Core.Entities.Attendence", b =>
-                {
-                    b.HasOne("EduGate.Core.Entities.Course", "Course")
-                        .WithMany("Attendences")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("EduGate.Core.Entities.Student", "Student")
-                        .WithMany("Attendences")
+                        .WithMany()
                         .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("EduGate.Core.Entities.StudentCourseGroup", "studentCourseGroup")
+                        .WithMany()
+                        .HasForeignKey("studentCourseGroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Student");
+
+                    b.Navigation("studentCourseGroup");
+                });
+
+            modelBuilder.Entity("EduGate.Core.Entities.DoctorCourseGroup", b =>
+                {
+                    b.HasOne("EduGate.Core.Entities.Course", "Course")
+                        .WithMany()
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EduGate.Core.Entities.Identity.Doctor", "Doctor")
+                        .WithMany()
+                        .HasForeignKey("DoctorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EduGate.Core.Entities.Group", "Group")
+                        .WithMany()
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Course");
+
+                    b.Navigation("Doctor");
+
+                    b.Navigation("Group");
+                });
+
+            modelBuilder.Entity("EduGate.Core.Entities.StudentCourseGroup", b =>
+                {
+                    b.HasOne("EduGate.Core.Entities.DoctorCourseGroup", "DoctorCourseGroup")
+                        .WithMany()
+                        .HasForeignKey("DoctorCourseGroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EduGate.Core.Entities.Student", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DoctorCourseGroup");
 
                     b.Navigation("Student");
                 });
@@ -479,16 +506,6 @@ namespace EduGate.Repositroy.Identity.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("EduGate.Core.Entities.Course", b =>
-                {
-                    b.Navigation("Attendences");
-                });
-
-            modelBuilder.Entity("EduGate.Core.Entities.Student", b =>
-                {
-                    b.Navigation("Attendences");
                 });
 #pragma warning restore 612, 618
         }

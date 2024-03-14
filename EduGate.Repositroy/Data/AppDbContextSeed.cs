@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace EduGate.Repositroy.Identity
 {
-    public static class AppIdentityDbContextSeed
+    public static class AppDbContextSeed
     {
         public static async Task SeedUserAsync(UserManager<AppUser> _userManager)
         {

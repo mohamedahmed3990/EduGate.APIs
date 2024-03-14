@@ -6,15 +6,12 @@ using System.Threading.Tasks;
 
 namespace EduGate.Core.Entities
 {
-    public class Attendence
+    public class StudentCourseGroup : BaseEntity
     {
-        public int Id { get; set; }
         public int StudentId { get; set; }
-        public int CourseId { get; set; }
-        public int LectureNumber { get; set; }
-        public DateTime AttendanceDate { get; set; }
-
         public Student Student { get; set; }
-        public Course Course { get; set; }
+
+        public int DoctorCourseGroupId { get; set; }
+        public DoctorCourseGroup DoctorCourseGroup { get; set; }
     }
 }

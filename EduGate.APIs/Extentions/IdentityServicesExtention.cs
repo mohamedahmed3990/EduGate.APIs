@@ -20,7 +20,7 @@ namespace EduGate.APIs.Extentions
             {
                 // configuration
 
-            }).AddEntityFrameworkStores<AppIdentityDbContext>();
+            }).AddEntityFrameworkStores<AppDbContext>();
 
             services.AddAuthentication(options =>
             {

@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace EduGate.Core.Entities
 {
-    public class Student : BaseEntity
+    public class BaseEntity
     {
-        public string Name { get; set; }     
+        public int Id { get; set; }
     }
 }
