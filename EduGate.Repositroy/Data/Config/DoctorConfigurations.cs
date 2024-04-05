@@ -9,15 +9,13 @@ using System.Threading.Tasks;
 
 namespace EduGate.Repositroy.Data.Config
 {
-    internal class GroupConfigurations : IEntityTypeConfiguration<Group>
+    internal class DoctorConfigurations : IEntityTypeConfiguration<Doctor>
     {
-        public void Configure(EntityTypeBuilder<Group> builder)
+        public void Configure(EntityTypeBuilder<Doctor> builder)
         {
-            builder.Property(G => G.GroupName)
-                .IsRequired();
-                
-            builder.HasIndex(G => G.GroupName)
-                .IsUnique();
+            builder.Property(d => d.Name).IsRequired();
+            builder.Property(d => d.UserName).IsRequired();
+
         }
     }
 }

@@ -11,9 +11,11 @@ namespace EduGate.Core.Entities
         public int StudentId { get; set; }
         public Student Student { get; set; }
 
-        public int StudentCourseGroup { get; set; }
-        public StudentCourseGroup studentCourseGroup { get; set; }
+        public int CourseGroupId { get; set; }
+        public CourseGroup CourseGroup { get; set; }
         public int LectureNumber { get; set; }
-        public DateTime Date { get; set; }
+
+        public bool Attend { get; set; }
+        public DateTime? Date { get; set; }
     }
 }

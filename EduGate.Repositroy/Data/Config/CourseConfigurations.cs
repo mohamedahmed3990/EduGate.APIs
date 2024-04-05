@@ -21,7 +21,7 @@ namespace EduGate.Repositroy.Data.Config
                 .IsRequired()
                 .HasMaxLength(20);
 
-            builder.HasIndex(C => new { C.CourseName, C.Code })
+            builder.HasIndex(C => C.Code )
                 .IsUnique();
                 
         }

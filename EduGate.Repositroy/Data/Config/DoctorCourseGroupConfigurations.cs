@@ -13,13 +13,10 @@ namespace EduGate.Repositroy.Data.Config
     {
         public void Configure(EntityTypeBuilder<DoctorCourseGroup> builder)
         {
-            builder.HasIndex(Dcg => new {Dcg.CourseId, Dcg.GroupId})
+            builder.HasIndex(Dcg => new { Dcg.CourseGroupId, Dcg.DoctorId })
                    .IsUnique();
 
-            builder.HasOne(Dcg => Dcg.Course)
-                   .WithMany();
-            
-            builder.HasOne(Dcg => Dcg.Group)
+            builder.HasOne(Dcg => Dcg.CourseGroup)
                    .WithMany();
 
             builder.HasOne(Dcg => Dcg.Doctor)

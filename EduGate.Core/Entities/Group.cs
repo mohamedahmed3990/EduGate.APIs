@@ -8,6 +8,6 @@ namespace EduGate.Core.Entities
 {
     public class Group : BaseEntity
     {
-        public int GroupNumber { get; set; }
+        public string GroupName { get; set; }
     }
 }
