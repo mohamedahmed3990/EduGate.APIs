@@ -2,7 +2,9 @@ using EduGate.APIs.Errors;
 using EduGate.APIs.Extentions;
 using EduGate.APIs.Middlewares;
 using EduGate.Core.Entities.Identity;
+using EduGate.Core.Repositories.Contract;
 using EduGate.Core.Services.Contract;
+using EduGate.Repositroy;
 using EduGate.Repositroy.Identity;
 using EduGate.Service;
 using Microsoft.AspNetCore.Identity;
@@ -27,11 +29,11 @@ namespace EduGate.APIs
             webApplicationBuilder.Services.AddSwaggerGen();
 
 
-            //webApplicationBuilder.Services.AddDbContext<EduGateContext>(options =>
-            //{
-            //    options.UseSqlServer(webApplicationBuilder.Configuration.GetConnectionString("DefaultConnection"));
-            //});
-
+            ///webApplicationBuilder.Services.AddDbContext<EduGateContext>(options =>
+            ///{
+            ///    options.UseSqlServer(webApplicationBuilder.Configuration.GetConnectionString("DefaultConnection"));
+            ///});
+            
             webApplicationBuilder.Services.AddDbContext<AppDbContext>(options =>
             {
                 options.UseSqlServer(webApplicationBuilder.Configuration.GetConnectionString("IdentityConnection"));
@@ -56,6 +58,8 @@ namespace EduGate.APIs
                     return new BadRequestObjectResult(validationErrorResponse);
                 };
             });
+
+            webApplicationBuilder.Services.AddScoped(typeof(IGenaricRepository<>), typeof(GenaricRepository<>));
 
             webApplicationBuilder.Services.AddHttpClient();
             #endregion
