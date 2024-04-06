@@ -1,4 +1,5 @@
 ﻿using EduGate.APIs.Errors;
+using EduGate.Core;
 using EduGate.Core.Entities;
 using EduGate.Core.Repositories.Contract;
 using Microsoft.AspNetCore.Http;
@@ -9,26 +10,46 @@ namespace EduGate.APIs.Controllers
 {
     public class StudentsController : BaseApiController
     {
-        private readonly IGenaricRepository<Student> _studentRepo;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public StudentsController(IGenaricRepository<Student> studentRepo)
+        public StudentsController(IUnitOfWork unitOfWork)
         {
-            _studentRepo = studentRepo;
+            _unitOfWork = unitOfWork;
         }
 
 
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Student>> GetStudent(int id)
+        {
+            var student = await _unitOfWork.Repository<Student>().GetByIdAsync(id);
+
+            if (student is null) return NotFound(new ApiResponse(404));
+            return Ok(student);
+        }
+
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Student>>> GetStudents()
+        {
+            var students = await _unitOfWork.Repository<Student>().GetAllAsync();
+            return Ok(students);
+        }
+
 
         [HttpPost]
-        public  ActionResult<ApiResponse> AddStudent(Student student)
+        public  async Task<ActionResult<ApiResponse>> AddStudent(Student student)
         {
             try
             {
-                var existingStudent = _studentRepo.GetByIdAsync(student.Id).Result;
+                var existingStudent = await _unitOfWork.Repository<Student>().GetByIdAsync(student.Id);
 
                 if (existingStudent != null)               
-                    return BadRequest(new ApiResponse(400, "Student already exists"));
+                    return BadRequest(new ApiResponse(400, "Student already exists"));               
 
-                _studentRepo.Add(student);
+                await _unitOfWork.Repository<Student>().AddAsync(student);
+                await _unitOfWork.CompleteAsync();
+                
+               
                 return Ok(new ApiResponse(200, "Student added successfully"));
             }
             catch (Exception ex)
@@ -39,38 +60,19 @@ namespace EduGate.APIs.Controllers
         }
 
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Student>> GetStudent(int id)
-        {
-
-
-            var student = await _studentRepo.GetByIdAsync(id);
-            if (student is null) { return BadRequest(new ApiResponse(400)); }
-            return Ok(student);
-        }
-
-
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Student>>> GetStudents()
-        {
-
-            var student = await _studentRepo.GetAllAsync();
-            if (student is null) { return NotFound(new ApiResponse(404)); }
-            return Ok(student);
-        }
-
-
         [HttpPost("delete")]
-        public ActionResult<ApiResponse> DeleteStudent(int id)
+        public async Task<ActionResult<ApiResponse>> DeleteStudent(int id)
         {
             try
             {
-                var existingStudent = _studentRepo.GetByIdAsync(id).Result;
+                var existingStudent = await _unitOfWork.Repository<Student>().GetByIdAsync(id);
 
                 if (existingStudent is null)
                     return BadRequest(new ApiResponse(400, "Student Not exists"));
 
-                _studentRepo.Delete(existingStudent);
+                 _unitOfWork.Repository<Student>().Delete(existingStudent);
+                 await _unitOfWork.CompleteAsync();
+
                 return Ok(new ApiResponse(200, "Student deleted successfully"));
             }
             catch (Exception ex)
@@ -81,17 +83,12 @@ namespace EduGate.APIs.Controllers
 
 
         [HttpPost("update")]
-        public ActionResult<Student> UpdateStudnt(Student student)
+        public async Task<ActionResult<Student>> UpdateStudent(Student student)
         {
-            try
-            {
-                _studentRepo.Update(student);
-                return Ok(student);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(400, new ApiResponse(400));
-            }
+             _unitOfWork.Repository<Student>().Update(student);
+             await _unitOfWork.CompleteAsync();
+
+             return Ok(student);   
         }
     }
 }

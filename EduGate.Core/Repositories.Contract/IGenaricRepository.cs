@@ -13,9 +13,15 @@ namespace EduGate.Core.Repositories.Contract
 
         Task<IReadOnlyList<T>>GetAllAsync();
 
-        int Add(T entity);
-        int Update(T entity);
-        int Delete(T entity);
-            
+
+
+
+
+        Task AddAsync(T entity);
+
+        void Update(T entity);
+        void Delete(T entity);
+
+
     }
 }

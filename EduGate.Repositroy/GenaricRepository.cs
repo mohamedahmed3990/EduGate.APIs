@@ -19,23 +19,7 @@ namespace EduGate.Repositroy
             _dbContext = dbContext;
         }
 
-        public int Add(T entity)
-        {
-             _dbContext.Add(entity);
-            return _dbContext.SaveChanges();
-        }
 
-        public int Delete(T entity)
-        {
-            _dbContext.Remove(entity);
-            return _dbContext.SaveChanges();
-        }
-
-        public int Update(T entity)
-        {
-            _dbContext.Update(entity);
-            return _dbContext.SaveChanges();
-        }
         public async Task<IReadOnlyList<T>> GetAllAsync()
         {
             return await _dbContext.Set<T>().ToListAsync();
@@ -46,6 +30,16 @@ namespace EduGate.Repositroy
         {
             return await _dbContext.Set<T>().FindAsync(id);
         }
+
+
+        public async Task AddAsync(T entity)
+           => await _dbContext.AddAsync(entity);
+
+        public void Update(T entity)
+            => _dbContext.Update(entity);
+
+        public void Delete(T entity)
+            => _dbContext.Remove(entity);
 
     }
 }

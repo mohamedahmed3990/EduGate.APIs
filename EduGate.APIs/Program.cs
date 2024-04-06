@@ -1,6 +1,7 @@
 using EduGate.APIs.Errors;
 using EduGate.APIs.Extentions;
 using EduGate.APIs.Middlewares;
+using EduGate.Core;
 using EduGate.Core.Entities.Identity;
 using EduGate.Core.Repositories.Contract;
 using EduGate.Core.Services.Contract;
@@ -60,6 +61,8 @@ namespace EduGate.APIs
             });
 
             webApplicationBuilder.Services.AddScoped(typeof(IGenaricRepository<>), typeof(GenaricRepository<>));
+
+            webApplicationBuilder.Services.AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork));
 
             webApplicationBuilder.Services.AddHttpClient();
             #endregion

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EduGate.Core.Entities.Identity;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,5 +13,9 @@ namespace EduGate.Core.Entities
         public string UserName { get; set; }
         public string? Phone { get; set; }
         public bool IsActive { get; set; }
+
+
+        //public string? UserId { get; set; }
+        //public AppUser User { get; set; }
     }
 }
