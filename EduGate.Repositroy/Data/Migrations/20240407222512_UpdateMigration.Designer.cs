@@ -4,6 +4,7 @@ using EduGate.Repositroy.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EduGate.Repositroy.Identity.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppIdentityDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240407222512_UpdateMigration")]
+    partial class UpdateMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -104,9 +106,13 @@ namespace EduGate.Repositroy.Identity.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasFilter("[UserId] IS NOT NULL");
 
                     b.ToTable("Doctors");
                 });
@@ -207,6 +213,7 @@ namespace EduGate.Repositroy.Identity.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("PictureUrl")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SecurityStamp")
@@ -439,6 +446,15 @@ namespace EduGate.Repositroy.Identity.Migrations
                     b.Navigation("Student");
                 });
 
+            modelBuilder.Entity("EduGate.Core.Entities.Doctor", b =>
+                {
+                    b.HasOne("EduGate.Core.Entities.Identity.AppUser", "AppUser")
+                        .WithOne("Doctor")
+                        .HasForeignKey("EduGate.Core.Entities.Doctor", "UserId");
+
+                    b.Navigation("AppUser");
+                });
+
             modelBuilder.Entity("EduGate.Core.Entities.DoctorCourseGroup", b =>
                 {
                     b.HasOne("EduGate.Core.Entities.Course", "Course")
@@ -541,6 +557,12 @@ namespace EduGate.Repositroy.Identity.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("EduGate.Core.Entities.Identity.AppUser", b =>
+                {
+                    b.Navigation("Doctor")
                         .IsRequired();
                 });
 #pragma warning restore 612, 618

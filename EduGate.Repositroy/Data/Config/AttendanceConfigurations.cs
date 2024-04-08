@@ -15,13 +15,16 @@ namespace EduGate.Repositroy.Data.Config
         {
             builder.Property(a => a.Attend).HasDefaultValue(false);
 
-            builder.HasIndex(a => new { a.StudentId, a.CourseGroupId, a.LectureNumber })
+            builder.HasIndex(a => new { a.StudentId, a.CourseId, a.GroupId, a.LectureNumber })
                    .IsUnique();
 
             builder.HasOne(A => A.Student)
                 .WithMany();   
             
-            builder.HasOne(A => A.CourseGroup)
+            builder.HasOne(A => A.Course)
+                .WithMany();    
+
+             builder.HasOne(A => A.Group)
                 .WithMany();    
         }
     }

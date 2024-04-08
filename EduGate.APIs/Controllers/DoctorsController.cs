@@ -30,24 +30,25 @@ namespace EduGate.APIs.Controllers
         public async Task<ActionResult<IEnumerable<Doctor>>> GetDoctors()
         {
             var doctors = await _unitOfWork.Repository<Doctor>().GetAllAsync();
+            if (doctors is null) return NotFound(new ApiResponse(404));
             return Ok(doctors);
         }
 
 
         [HttpPost]
-        public  async Task<ActionResult<ApiResponse>> AddDoctor(Doctor doctor)
+        public async Task<ActionResult<ApiResponse>> AddDoctor(Doctor doctor)
         {
             try
             {
                 var existingDoctor = await _unitOfWork.Repository<Doctor>().GetByIdAsync(doctor.Id);
 
-                if (existingDoctor != null)               
-                    return BadRequest(new ApiResponse(400, "Doctor already exists"));               
+                if (existingDoctor != null)
+                    return BadRequest(new ApiResponse(400, "Doctor already exists"));
 
                 await _unitOfWork.Repository<Doctor>().AddAsync(doctor);
                 await _unitOfWork.CompleteAsync();
-                
-               
+
+
                 return Ok(new ApiResponse(200, "Doctor added successfully"));
             }
             catch (Exception ex)
@@ -68,8 +69,8 @@ namespace EduGate.APIs.Controllers
                 if (existingDoctor is null)
                     return BadRequest(new ApiResponse(400, "Doctor Not exists"));
 
-                 _unitOfWork.Repository<Doctor>().Delete(existingDoctor);
-                 await _unitOfWork.CompleteAsync();
+                _unitOfWork.Repository<Doctor>().Delete(existingDoctor);
+                await _unitOfWork.CompleteAsync();
 
                 return Ok(new ApiResponse(200, "Doctor deleted successfully"));
             }
@@ -83,10 +84,10 @@ namespace EduGate.APIs.Controllers
         [HttpPost("update")]
         public async Task<ActionResult<Doctor>> UpdateDoctor(Doctor doctor)
         {
-             _unitOfWork.Repository<Doctor>().Update(doctor);
-             await _unitOfWork.CompleteAsync();
+            _unitOfWork.Repository<Doctor>().Update(doctor);
+            await _unitOfWork.CompleteAsync();
 
-             return Ok(doctor);   
+            return Ok(doctor);
         }
     }
 }

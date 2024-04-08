@@ -14,12 +14,8 @@ namespace EduGate.Repositroy.Data.Config
         public void Configure(EntityTypeBuilder<Doctor> builder)
         {
             builder.Property(d => d.Name).IsRequired();
-            builder.Property(d => d.UserName).IsRequired();
 
 
-            //builder.HasOne(d => d.User)
-            //       .WithOne(u => u.Doctor)
-            //       .HasForeignKey<Doctor>(d => d.User);
         }
     }
 }

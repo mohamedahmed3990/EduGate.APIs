@@ -12,7 +12,10 @@ namespace EduGate.Core.Entities
         public int DoctorId { get; set; }
         public Doctor Doctor { get; set; }
 
-        public int CourseGroupId { get; set; }
-        public CourseGroup CourseGroup { get; set; }
+        public int CourseId { get; set; }
+        public Course Course { get; set; }
+
+        public int GroupId { get; set; }
+        public Group Group { get; set; }
     }
 }

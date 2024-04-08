@@ -10,12 +10,7 @@ namespace EduGate.Core.Entities
     public class Doctor : BaseEntity
     {
         public string Name { get; set; }
-        public string UserName { get; set; }
-        public string? Phone { get; set; }
         public bool IsActive { get; set; }
-
-
-        //public string? UserId { get; set; }
-        //public AppUser User { get; set; }
+        public string? UserId { get; set; }
     }
 }

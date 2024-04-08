@@ -4,6 +4,7 @@ using EduGate.Repositroy.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EduGate.Repositroy.Identity.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppIdentityDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240406052149_EditDoctorEntity")]
+    partial class EditDoctorEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,14 +37,11 @@ namespace EduGate.Repositroy.Identity.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
-                    b.Property<int>("CourseId")
+                    b.Property<int>("CourseGroupId")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("Date")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("GroupId")
-                        .HasColumnType("int");
 
                     b.Property<int>("LectureNumber")
                         .HasColumnType("int");
@@ -52,11 +51,9 @@ namespace EduGate.Repositroy.Identity.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CourseId");
+                    b.HasIndex("CourseGroupId");
 
-                    b.HasIndex("GroupId");
-
-                    b.HasIndex("StudentId", "CourseId", "GroupId", "LectureNumber")
+                    b.HasIndex("StudentId", "CourseGroupId", "LectureNumber")
                         .IsUnique();
 
                     b.ToTable("Attendance");
@@ -88,6 +85,30 @@ namespace EduGate.Repositroy.Identity.Migrations
                     b.ToTable("Course");
                 });
 
+            modelBuilder.Entity("EduGate.Core.Entities.CourseGroup", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("GroupId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
+
+                    b.HasIndex("GroupId", "CourseId")
+                        .IsUnique();
+
+                    b.ToTable("CourseGroup");
+                });
+
             modelBuilder.Entity("EduGate.Core.Entities.Doctor", b =>
                 {
                     b.Property<int>("Id")
@@ -103,10 +124,17 @@ namespace EduGate.Repositroy.Identity.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserId")
+                    b.Property<string>("Phone")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasFilter("[UserId] IS NOT NULL");
 
                     b.ToTable("Doctors");
                 });
@@ -119,22 +147,17 @@ namespace EduGate.Repositroy.Identity.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("CourseId")
+                    b.Property<int>("CourseGroupId")
                         .HasColumnType("int");
 
                     b.Property<int>("DoctorId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("GroupId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("DoctorId");
 
-                    b.HasIndex("GroupId");
-
-                    b.HasIndex("CourseId", "GroupId", "DoctorId")
+                    b.HasIndex("CourseGroupId", "DoctorId")
                         .IsUnique();
 
                     b.ToTable("DoctorCourseGroup");
@@ -207,6 +230,7 @@ namespace EduGate.Repositroy.Identity.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("PictureUrl")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SecurityStamp")
@@ -258,10 +282,7 @@ namespace EduGate.Repositroy.Identity.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("CourseId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("GroupId")
+                    b.Property<int>("CourseGroupId")
                         .HasColumnType("int");
 
                     b.Property<int>("StudentId")
@@ -269,11 +290,9 @@ namespace EduGate.Repositroy.Identity.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CourseId");
+                    b.HasIndex("CourseGroupId");
 
-                    b.HasIndex("GroupId");
-
-                    b.HasIndex("StudentId", "CourseId", "GroupId")
+                    b.HasIndex("StudentId", "CourseGroupId")
                         .IsUnique();
 
                     b.ToTable("StudentCourseGroup");
@@ -414,6 +433,25 @@ namespace EduGate.Repositroy.Identity.Migrations
 
             modelBuilder.Entity("EduGate.Core.Entities.Attendance", b =>
                 {
+                    b.HasOne("EduGate.Core.Entities.CourseGroup", "CourseGroup")
+                        .WithMany()
+                        .HasForeignKey("CourseGroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EduGate.Core.Entities.Student", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CourseGroup");
+
+                    b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("EduGate.Core.Entities.CourseGroup", b =>
+                {
                     b.HasOne("EduGate.Core.Entities.Course", "Course")
                         .WithMany()
                         .HasForeignKey("CourseId")
@@ -426,24 +464,25 @@ namespace EduGate.Repositroy.Identity.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("EduGate.Core.Entities.Student", "Student")
-                        .WithMany()
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Course");
 
                     b.Navigation("Group");
+                });
 
-                    b.Navigation("Student");
+            modelBuilder.Entity("EduGate.Core.Entities.Doctor", b =>
+                {
+                    b.HasOne("EduGate.Core.Entities.Identity.AppUser", "AppUser")
+                        .WithOne("Doctor")
+                        .HasForeignKey("EduGate.Core.Entities.Doctor", "UserId");
+
+                    b.Navigation("AppUser");
                 });
 
             modelBuilder.Entity("EduGate.Core.Entities.DoctorCourseGroup", b =>
                 {
-                    b.HasOne("EduGate.Core.Entities.Course", "Course")
+                    b.HasOne("EduGate.Core.Entities.CourseGroup", "CourseGroup")
                         .WithMany()
-                        .HasForeignKey("CourseId")
+                        .HasForeignKey("CourseGroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -453,30 +492,16 @@ namespace EduGate.Repositroy.Identity.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("EduGate.Core.Entities.Group", "Group")
-                        .WithMany()
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Course");
+                    b.Navigation("CourseGroup");
 
                     b.Navigation("Doctor");
-
-                    b.Navigation("Group");
                 });
 
             modelBuilder.Entity("EduGate.Core.Entities.StudentCourseGroup", b =>
                 {
-                    b.HasOne("EduGate.Core.Entities.Course", "Course")
+                    b.HasOne("EduGate.Core.Entities.CourseGroup", "CourseGroup")
                         .WithMany()
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("EduGate.Core.Entities.Group", "Group")
-                        .WithMany()
-                        .HasForeignKey("GroupId")
+                        .HasForeignKey("CourseGroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -486,9 +511,7 @@ namespace EduGate.Repositroy.Identity.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Course");
-
-                    b.Navigation("Group");
+                    b.Navigation("CourseGroup");
 
                     b.Navigation("Student");
                 });
@@ -541,6 +564,12 @@ namespace EduGate.Repositroy.Identity.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("EduGate.Core.Entities.Identity.AppUser", b =>
+                {
+                    b.Navigation("Doctor")
                         .IsRequired();
                 });
 #pragma warning restore 612, 618
