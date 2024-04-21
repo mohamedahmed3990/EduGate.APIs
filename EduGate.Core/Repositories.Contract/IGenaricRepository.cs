@@ -13,6 +13,11 @@ namespace EduGate.Core.Repositories.Contract
 
         Task<IReadOnlyList<T>>GetAllAsync();
 
+        Task<T?> GetByIdWithSpecAsync(ISpecification<T> spec);
+
+        Task<IReadOnlyList<T>>GetAllWithSpecAsync(ISpecification<T> spec); 
+        Task<IReadOnlyList<T>>GetAllByIdWithSpecAsync(ISpecification<T> spec);
+
 
 
 

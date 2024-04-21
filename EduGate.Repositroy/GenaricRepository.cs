@@ -1,6 +1,8 @@
-﻿using EduGate.Core.Entities;
+﻿using EduGate.Core;
+using EduGate.Core.Entities;
 using EduGate.Core.Repositories.Contract;
 using EduGate.Repositroy.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -12,7 +14,7 @@ namespace EduGate.Repositroy
 {
     public class GenaricRepository<T> : IGenaricRepository<T> where T : BaseEntity
     {
-        private readonly AppDbContext _dbContext;
+        private protected readonly AppDbContext _dbContext;
 
         public GenaricRepository(AppDbContext dbContext)
         {
@@ -41,5 +43,30 @@ namespace EduGate.Repositroy
         public void Delete(T entity)
             => _dbContext.Remove(entity);
 
+        public async Task<T?> GetByIdWithSpecAsync(ISpecification<T> spec)
+        {
+            return await ApplySpecification(spec).FirstOrDefaultAsync();
+        }
+         
+        public async Task<IReadOnlyList<T>> GetAllWithSpecAsync(ISpecification<T> spec)
+        {
+            return await ApplySpecification(spec).ToListAsync();
+        }
+
+        public async Task<IReadOnlyList<T>> GetAllByIdWithSpecAsync(ISpecification<T> spec)
+        {
+            return await ApplySpecification(spec).ToListAsync();
+        }
+
+
+
+
+
+
+        private IQueryable<T> ApplySpecification(ISpecification<T> spec)
+        {
+            return SpecificationEvaluator<T>.GetQuery(_dbContext.Set<T>(), spec);
+        }
     }
 }
+ 

@@ -134,6 +134,12 @@ namespace EduGate.APIs.Controllers
 
 
 
+        [HttpPost("logout")]
+        public async Task<ActionResult> Logout()
+        {
+           await _signInManager.SignOutAsync();
+            return Ok(new { message = "Logged out successfully :(" });
+        }
 
     }
 }

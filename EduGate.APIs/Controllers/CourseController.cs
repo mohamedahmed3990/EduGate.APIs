@@ -58,8 +58,8 @@ namespace EduGate.APIs.Controllers
         }
 
 
-        [HttpPost("delete")]
-        public async Task<ActionResult<ApiResponse>> DeleteCourse(int id)
+        [HttpPost("delete/{id}")]
+        public async Task<ActionResult<ApiResponse>> DeleteCourse([FromRoute]int id)
         {
             try
             {

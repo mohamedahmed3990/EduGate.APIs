@@ -1,5 +1,6 @@
 using EduGate.APIs.Errors;
 using EduGate.APIs.Extentions;
+using EduGate.APIs.Helper;
 using EduGate.APIs.Middlewares;
 using EduGate.Core;
 using EduGate.Core.Entities.Identity;
@@ -7,6 +8,7 @@ using EduGate.Core.Repositories.Contract;
 using EduGate.Core.Services.Contract;
 using EduGate.Repositroy;
 using EduGate.Repositroy.Identity;
+using EduGate.Repositroy.Repositroies;
 using EduGate.Service;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -61,10 +63,15 @@ namespace EduGate.APIs
             });
 
             webApplicationBuilder.Services.AddScoped(typeof(IGenaricRepository<>), typeof(GenaricRepository<>));
+            webApplicationBuilder.Services.AddScoped(typeof(IDoctorRepository), typeof(DoctorRepository));
 
             webApplicationBuilder.Services.AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork));
 
             webApplicationBuilder.Services.AddHttpClient();
+
+            webApplicationBuilder.Services.AddAutoMapper(typeof(MappingProfile));
+
+
             #endregion
 
             var app = webApplicationBuilder.Build();
@@ -83,7 +90,8 @@ namespace EduGate.APIs
                 await _IdentityDbContext.Database.MigrateAsync();   // Update Database
 
                 var _userManager = services.GetRequiredService<UserManager<AppUser>>();
-                await AppDbContextSeed.SeedUserAsync(_userManager);
+
+                await AppDbContextSeed.SeedAsync(_IdentityDbContext);
             }
             catch (Exception ex)
             {
@@ -111,6 +119,7 @@ namespace EduGate.APIs
 
             app.UseHttpsRedirection();
 
+            app.UseCors(b => b.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
             app.MapControllers(); 
 

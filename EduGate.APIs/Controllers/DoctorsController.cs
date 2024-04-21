@@ -1,6 +1,10 @@
-﻿using EduGate.APIs.Errors;
+﻿using AutoMapper;
+using EduGate.APIs.DTOs;
+using EduGate.APIs.Errors;
 using EduGate.Core;
 using EduGate.Core.Entities;
+using EduGate.Core.Repositories.Contract;
+using EduGate.Core.Specifications;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,10 +13,14 @@ namespace EduGate.APIs.Controllers
     public class DoctorsController : BaseApiController
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IDoctorRepository _doctorRepo;
+        private readonly IMapper _mapper;
 
-        public DoctorsController(IUnitOfWork unitOfWork)
+        public DoctorsController(IUnitOfWork unitOfWork, IDoctorRepository doctorRepo, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _doctorRepo = doctorRepo;
+            _mapper = mapper;
         }
 
 
@@ -40,10 +48,12 @@ namespace EduGate.APIs.Controllers
         {
             try
             {
-                var existingDoctor = await _unitOfWork.Repository<Doctor>().GetByIdAsync(doctor.Id);
+                var existDoctor = await _doctorRepo.GetbyName(doctor.Name);
 
-                if (existingDoctor != null)
+                if (existDoctor is not null)
                     return BadRequest(new ApiResponse(400, "Doctor already exists"));
+
+
 
                 await _unitOfWork.Repository<Doctor>().AddAsync(doctor);
                 await _unitOfWork.CompleteAsync();
@@ -88,6 +98,67 @@ namespace EduGate.APIs.Controllers
             await _unitOfWork.CompleteAsync();
 
             return Ok(doctor);
+        }
+
+
+
+
+
+
+
+
+        [HttpPost("courseToDoctor")]
+        public async Task<ActionResult> AddCourseToDoctor(DoctorCourseGorupModel model)
+        {
+            var doctor = await _unitOfWork.Repository<Doctor>().GetByIdAsync(model.DoctorId);
+            if (doctor is null)
+                return NotFound(new ApiResponse(404));
+
+            var course = await _unitOfWork.Repository<Course>().GetByIdAsync(model.CourseId);
+            if (course is null)
+                return NotFound(new ApiResponse(404));
+
+            var group = await _unitOfWork.Repository<Group>().GetByIdAsync(model.GroupId);
+            if (group is null)
+                return NotFound(new ApiResponse(404));
+
+            var spec = new DoctorCourseSepcs(model.DoctorId, model.CourseId, model.GroupId);
+
+            var doctorCourse = await _unitOfWork.Repository<DoctorCourseGroup>().GetByIdWithSpecAsync(spec);
+
+            if (doctorCourse is not null)
+            {
+                return BadRequest(new ApiResponse(400, "doctor aleady exist!!"));
+            }
+
+            var doctorCourseGroup = new DoctorCourseGroup()
+            {
+                DoctorId = model.DoctorId,
+                CourseId = model.CourseId,
+                GroupId = model.GroupId
+            };
+
+
+            await _unitOfWork.Repository<DoctorCourseGroup>().AddAsync(doctorCourseGroup);
+            await _unitOfWork.CompleteAsync();
+
+            return Ok(new ApiResponse(200, "doctor added to course group successfully"));
+
+
+        }
+
+
+
+        [HttpGet("doctorCourse")]
+        public async Task<ActionResult<IEnumerable<DoctorCourseGroupToReturnDto>>> GetAllDoctorCourseGroup()
+        {
+            var spec = new DoctorCourseSepcs();
+
+            var doctors = await _unitOfWork.Repository<DoctorCourseGroup>().GetAllWithSpecAsync(spec);
+
+            var doctorMapped = _mapper.Map<IEnumerable<DoctorCourseGroup>, IEnumerable<DoctorCourseGroupToReturnDto>>(doctors);
+
+            return Ok(doctorMapped);
         }
     }
 }
