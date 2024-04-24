@@ -64,6 +64,7 @@ namespace EduGate.APIs
 
             webApplicationBuilder.Services.AddScoped(typeof(IGenaricRepository<>), typeof(GenaricRepository<>));
             webApplicationBuilder.Services.AddScoped(typeof(IDoctorRepository), typeof(DoctorRepository));
+            webApplicationBuilder.Services.AddScoped(typeof(IAttendanceRepository), typeof(AttendanceRepository));
 
             webApplicationBuilder.Services.AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork));
 

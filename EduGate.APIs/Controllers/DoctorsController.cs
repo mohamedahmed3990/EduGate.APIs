@@ -150,15 +150,28 @@ namespace EduGate.APIs.Controllers
 
 
         [HttpGet("doctorCourse")]
-        public async Task<ActionResult<IEnumerable<DoctorCourseGroupToReturnDto>>> GetAllDoctorCourseGroup()
+        public async Task<ActionResult> GetAllDoctorCourseGroup()
         {
             var spec = new DoctorCourseSepcs();
 
             var doctors = await _unitOfWork.Repository<DoctorCourseGroup>().GetAllWithSpecAsync(spec);
 
-            var doctorMapped = _mapper.Map<IEnumerable<DoctorCourseGroup>, IEnumerable<DoctorCourseGroupToReturnDto>>(doctors);
+            //var doctorMapped = _mapper.Map<IEnumerable<DoctorCourseGroup>, IEnumerable<DoctorCourseGroupToReturnDto>>(doctors);
 
-            return Ok(doctorMapped);
+            var formattedOutput = doctors
+            .GroupBy(sc => new { sc.DoctorId, sc.Doctor.Name }) 
+            .Select(group => new
+            {
+                DoctorId = group.Key.DoctorId,
+                Doctor = group.Key.Name,            
+                courses = group.Select(sc => new
+                {
+                    coursename = sc.Course.CourseName,
+                    group = sc.Group.GroupName
+                }).ToList()
+            });
+            return Ok(formattedOutput);
+          
         }
     }
 }
