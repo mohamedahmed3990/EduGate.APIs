@@ -5,11 +5,13 @@ using EduGate.Core;
 using EduGate.Core.Entities;
 using EduGate.Core.Repositories.Contract;
 using EduGate.Core.Specifications;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EduGate.APIs.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class DoctorsController : BaseApiController
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -99,9 +101,6 @@ namespace EduGate.APIs.Controllers
 
             return Ok(doctor);
         }
-
-
-
 
 
 

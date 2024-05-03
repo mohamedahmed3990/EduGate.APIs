@@ -23,5 +23,10 @@ namespace EduGate.Repositroy.Repositroies
         {
             return await _context.Doctors.FirstOrDefaultAsync(d => d.Name == name);
         }
+        
+        public async Task<Doctor> GetbyUserId(string id)
+        {
+            return await _context.Doctors.FirstOrDefaultAsync(d => d.UserId == id);
+        }
     }
 }

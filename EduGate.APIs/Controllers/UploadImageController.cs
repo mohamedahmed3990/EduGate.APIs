@@ -22,53 +22,15 @@ namespace EduGate.APIs.Controllers
         }
 
 
-        //[HttpPut("uploadfile")]
-        //public async Task<ActionResult<ImagePathReturn>> UploadImage(IFormFile formFile, string studentId)
-        //{
-        //    try
-        //    {
-        //        string Fiepath = $"{_webHostEnvironment.WebRootPath}/Upload/student";
-        //        if (!System.IO.Directory.Exists(Filepath))
-        //        {
-        //            System.IO.Directory.CreateDirectory(Filepath);
-        //        }
-
-
-        //        string imagepath = $"{Filepath}/{studentId}.png";
-        //        if (System.IO.File.Exists(imagepath))
-        //        {
-        //            System.IO.File.Delete(imagepath);
-        //        }
-
-        //        using (FileStream stream = System.IO.File.Create(imagepath))
-        //        {
-        //            await formFile.CopyToAsync(stream);
-        //        }
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        ApiResponse apiResponse = new ApiResponse(100, ex.Message);
-
-        //    }
-
-        //    var user = await _userManager.FindByNameAsync(studentId);
-        //    if (user is null) return BadRequest(new ApiResponse(400));
-
-        //    ImagePathReturn imageReturn = new ImagePathReturn()
-        //    {
-        //        ImageUrl = user.PictureUrl,
-        //        Message = "Image Uploaded Successfully"
-        //    };
-
-        //    return Ok(imageReturn);
-
-        //}
-
 
         [HttpPost("uploadfile")]
-        public ActionResult<ImagePathReturn> UploadImage(IFormFile file, string studentId)
+        public async Task<ActionResult<ImagePathReturn>> UploadImage(IFormFile file, string studentId)
         {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest(new ApiResponse(400, "No file uploaded"));
+            }
+
             //1. get location folder path
             string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\Upload\\student");
 
@@ -82,85 +44,60 @@ namespace EduGate.APIs.Controllers
             var fileStream = new FileStream(filePath, FileMode.Create);
             file.CopyTo(fileStream);
 
-            return Ok(new ImagePathReturn
+            try
             {
-                ImageUrl = $"{ studentId }",
-                Message = "image uploaded successfully :)"
-            });
-        }
+                // Convert uploaded image to base64 string
+                byte[] imageBytes;
+                using (var memoryStream = new MemoryStream())
+                {
+                    await file.CopyToAsync(memoryStream);
+                    imageBytes = memoryStream.ToArray();
+                }
 
-
-
-        [HttpPost("scan")]
-        public async Task<ActionResult> ScanImages(IFormFile file, string studentId)
-        {
-
-             string tempDirectory = Path.Combine(Path.GetTempPath(), "uploads");
-             Directory.CreateDirectory(tempDirectory);
-
-            
-            string fileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
-
-            string currentImage = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Upload", "student", $"{studentId}.png");
-
-            //3. get file path
-            var filePath = Path.Combine(tempDirectory, fileName);
-
-            // Save the file to the temporary directory
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
+                string base64String = Convert.ToBase64String(imageBytes);
+                return Ok(new ImagePathReturn
+                {
+                    ImageUrl = base64String,
+                    Message = "Image uploaded successfully :)"
+                });
             }
-
-            var result = new
+            catch (Exception ex)
             {
-                img1 = filePath,
-                img2 = currentImage
-            };
-
-            return Ok(result);
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
 
 
+        [HttpGet("getImage")]
+        public async Task<ActionResult<ImagePathReturn>> GetImage(string studentId)
+        {
+            string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\Upload\\student");
+            string fileName = $"{studentId}.png";
+            string filePath = Path.Combine(folderPath, fileName);
 
+            try
+            {
+                if (!System.IO.File.Exists(filePath))
+                {
+                    return NotFound(new ApiResponse(404, "image not found"));
+                }
 
+                byte[] imageBytes = await System.IO.File.ReadAllBytesAsync(filePath);
 
+                string base64String = Convert.ToBase64String(imageBytes);
 
-
-
-
-
-
-        //[HttpGet("GetImage")]
-        //public async Task<ActionResult<ImagePathReturn>> GetImage(string studentId)
-        //{
-        //    string Imageurl = string.Empty;
-        //    try
-        //    {
-        //        string Filepath = $"{_webHostEnvironment.WebRootPath}/Upload/student/";
-        //        string imagepath = $"{Filepath}/{studentId}.png";
-        //        if (System.IO.File.Exists(imagepath))
-        //        {
-        //            Imageurl = $"{_configuration["BaseUrl"]}/Upload/student/{studentId}.png";
-        //        }
-        //        else
-        //        {
-        //            return NotFound(new ApiResponse(404));
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(new ApiExceptionResponse(500, ex.Message));
-        //    }
-
-        //    return Ok(new ImagePathReturn()
-        //    {
-        //        ImageUrl = Imageurl,
-        //        Message = "Image Returned Successfully"
-        //    });
-        //}
-
+                return Ok(new ImagePathReturn
+                {
+                    ImageUrl = base64String,
+                    Message = "Image retrieved successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
 
 
 

@@ -15,8 +15,8 @@ namespace EduGate.Repositroy.Data.Config
         {
             builder.Property(a => a.Attend).HasDefaultValue(false);
 
-            builder.HasIndex(a => new { a.StudentId, a.CourseId, a.GroupId, a.LectureNumber })
-                   .IsUnique();
+            //builder.HasIndex(a => new { a.StudentId, a.CourseId, a.GroupId, a.LectureNumber })
+            //       .IsUnique();
 
             builder.HasOne(A => A.Student)
                 .WithMany();   

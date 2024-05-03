@@ -3,9 +3,11 @@ using EduGate.Core.Entities;
 using EduGate.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EduGate.APIs.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class CourseController : BaseApiController
     {
         private readonly IUnitOfWork _unitOfWork;

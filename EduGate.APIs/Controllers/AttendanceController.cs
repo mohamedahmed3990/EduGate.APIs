@@ -5,6 +5,7 @@ using EduGate.Core;
 using EduGate.Core.Entities;
 using EduGate.Core.Repositories.Contract;
 using EduGate.Core.Specifications;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection.XmlEncryption;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -48,9 +49,64 @@ namespace EduGate.APIs.Controllers
 
         }
         
-        
+        //(app)
+        [HttpGet("history")]        
+        public async Task<ActionResult> GetAttendanceHistory(int studentId)
+        {
+            var spec = new AttendanceSpecs(studentId);
+            var attendance = await _unitOfWork.Repository<Attendance>().GetAllByIdWithSpecAsync(spec);
 
 
+            var groupedAttendance = attendance
+            .GroupBy(a => a.Date)
+            .OrderByDescending(g => g.Key)
+            .Select(group => new
+            {
+                Date = group.Key,
+                AttendanceRecords = group.Select(a => new
+                {
+                    a.LectureNumber,
+                    a.Course.CourseName,
+                    a.Course.Code,
+                    a.Group.GroupName
+                }).ToList()
+            });
+
+            return Ok(groupedAttendance);
+           
+                
+        }
+
+
+        //(app)
+        [HttpPost("takeAttendance")]
+        public async Task<ActionResult> TakeAttendance(QrCodeData qrData)
+        {
+            var spec = new StudentCourseSpecs(qrData.StudentId, qrData.CourseId, qrData.CourseId);
+            var studCourse = _unitOfWork.Repository<StudentCourseGroup>().GetByIdWithSpecAsync(spec);
+
+            if (studCourse is null) return NotFound(new ApiResponse(404, "student not found in this course group"));
+
+
+            var existAttendance = await _attendanceRepo.GetAttedance(qrData.StudentId, qrData.CourseId, qrData.GroupId, qrData.LectureNumber);
+
+            if (existAttendance == null)
+            {
+                return NotFound(new ApiResponse(404,"this record not found in attendacne list"));
+            }
+
+            existAttendance.Attend = true;
+            existAttendance.Date = DateTime.Now;
+
+            _unitOfWork.Repository<Attendance>().Update(existAttendance);
+            await _unitOfWork.CompleteAsync();
+
+            return Ok(new ApiResponse(200, "Attendance marked successfully"));
+
+        }
+
+
+        [Authorize(Roles = "Doctor")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AttendanceToReturnDto>>> GetAttendance(int courseId,int groupId)
         {
@@ -73,7 +129,7 @@ namespace EduGate.APIs.Controllers
         }
 
 
-
+        [Authorize(Roles = "Doctor")]
         [HttpGet("DoctorCourse")]
         public async Task<ActionResult<AttendanceCourseForDoctorToReturnDto>> GetCoursesForDoctroAttendance(int doctorId)
         {
@@ -104,8 +160,8 @@ namespace EduGate.APIs.Controllers
             return Ok(grouppedcourse);
         }
 
-
-
+        
+        [Authorize(Roles = "Doctor")]
         [HttpPost("updateAttendance")]
         public async Task<ActionResult> UpdateAttendance(UpdateAttendanceModel model)
         {
@@ -128,12 +184,6 @@ namespace EduGate.APIs.Controllers
 
 
 
-
-
-
-
-
-
  
         // add new attendance
         [HttpPost("addattendance")]
@@ -151,21 +201,18 @@ namespace EduGate.APIs.Controllers
                     //var existingAttendance = await _unitOfWork.Repository<Attendance>()
                     //    .get(a => a.StudentCourseGroupId == studentCourseGroup.Id && a.LectureNumber == lectureNumber);
 
-                    if (studentCourseGroup == null)
+                    var attendance = new Attendance
                     {
-                         var attendance = new Attendance
-                         {
-                             StudentId = studentCourseGroup.StudentId,
-                             CourseId = studentCourseGroup.CourseId,
-                             GroupId = studentCourseGroup.GroupId,
-                             LectureNumber = lectureNumber,
-                             Attend = false,
-                             Date = DateTime.Now,
-                         };
+                        StudentId = studentCourseGroup.StudentId,
+                        CourseId = studentCourseGroup.CourseId,
+                        GroupId = studentCourseGroup.GroupId,
+                        LectureNumber = lectureNumber,
+                        Attend = false,
+                        Date = DateTime.Now,
+                    };
 
-                           await _unitOfWork.Repository<Attendance>().AddAsync(attendance);
-                     };
-
+                      await _unitOfWork.Repository<Attendance>().AddAsync(attendance);
+                     
                 }
             }
 

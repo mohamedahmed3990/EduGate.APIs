@@ -21,19 +21,19 @@ namespace EduGate.APIs.Controllers
         }
 
 
-        [HttpGet]
-        public async Task<ActionResult> CompareImage()
-        {
-            var currentDirectory = Directory.GetCurrentDirectory();
-            var imagePath = Path.Combine(currentDirectory, "wwwroot", "upload", "student", "42020114.png");
+        //[HttpGet]
+        //public async Task<ActionResult> CompareImage()
+        //{
+        //    var currentDirectory = Directory.GetCurrentDirectory();
+        //    var imagePath = Path.Combine(currentDirectory, "wwwroot", "upload", "student", "42020114.png");
 
-            var result = new
-            {
-                img1 = imagePath,
-                img2 = imagePath
-            };
+        //    var result = new
+        //    {
+        //        img1 = imagePath,
+        //        img2 = imagePath
+        //    };
 
-            return Ok(result);
+        //    return Ok(result);
 
             //var client = _clientFactory.CreateClient();
             //var request = new HttpRequestMessage(HttpMethod.Post, $"{_configuration["ModelUrl"]}/predict");
@@ -108,5 +108,5 @@ namespace EduGate.APIs.Controllers
 
         
 
-    }
+    //}
 }

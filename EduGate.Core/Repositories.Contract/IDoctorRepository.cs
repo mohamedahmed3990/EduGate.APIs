@@ -10,5 +10,7 @@ namespace EduGate.Core.Repositories.Contract
     public interface IDoctorRepository
     {
         Task<Doctor> GetbyName(string name);
+
+        Task<Doctor> GetbyUserId(string id);
     }
 }

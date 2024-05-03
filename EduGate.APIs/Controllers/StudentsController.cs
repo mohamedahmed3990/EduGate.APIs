@@ -2,12 +2,14 @@
 using EduGate.Core;
 using EduGate.Core.Entities;
 using EduGate.Core.Repositories.Contract;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 
 namespace EduGate.APIs.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class StudentsController : BaseApiController
     {
         private readonly IUnitOfWork _unitOfWork;

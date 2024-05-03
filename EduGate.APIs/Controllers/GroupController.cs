@@ -1,11 +1,13 @@
 ﻿using EduGate.APIs.Errors;
 using EduGate.Core;
 using EduGate.Core.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EduGate.APIs.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class GroupController : BaseApiController
     {
         private readonly IUnitOfWork _unitOfWork;

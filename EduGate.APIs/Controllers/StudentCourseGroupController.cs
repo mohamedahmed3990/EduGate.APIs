@@ -5,6 +5,7 @@ using EduGate.Core;
 using EduGate.Core.Entities;
 using EduGate.Core.Repositories.Contract;
 using EduGate.Core.Specifications;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -22,7 +23,7 @@ namespace EduGate.APIs.Controllers
             _mapper = mapper;
         }
 
-
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult> AddCourseToStudent(StudentCourseGroupModel model)
         {
@@ -64,6 +65,8 @@ namespace EduGate.APIs.Controllers
         }
 
 
+
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<ActionResult> GetAllStudentCourseGroup()
         {
@@ -90,14 +93,7 @@ namespace EduGate.APIs.Controllers
 
 
 
-
-
-
-
-
-
-
-        // To Application Student 
+        // (app)Student 
         [HttpGet("AppStudentCourse")]
         public async Task<ActionResult<IEnumerable<StudentCourseGroup>>> GetCoursesForStudent(int studentId)
         {
