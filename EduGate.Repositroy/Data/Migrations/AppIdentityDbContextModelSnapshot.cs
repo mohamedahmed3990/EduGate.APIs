@@ -56,8 +56,7 @@ namespace EduGate.Repositroy.Identity.Migrations
 
                     b.HasIndex("GroupId");
 
-                    b.HasIndex("StudentId", "CourseId", "GroupId", "LectureNumber")
-                        .IsUnique();
+                    b.HasIndex("StudentId");
 
                     b.ToTable("Attendance");
                 });
@@ -273,7 +272,7 @@ namespace EduGate.Repositroy.Identity.Migrations
 
                     b.HasIndex("GroupId");
 
-                    b.HasIndex("StudentId", "CourseId", "GroupId")
+                    b.HasIndex("StudentId", "CourseId")
                         .IsUnique();
 
                     b.ToTable("StudentCourseGroup");

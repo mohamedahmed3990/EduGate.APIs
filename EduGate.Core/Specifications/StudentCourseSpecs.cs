@@ -26,5 +26,10 @@ namespace EduGate.Core.Specifications
         {
          
         }
+
+        public StudentCourseSpecs(int studentId, int courseId) : base(s => s.StudentId == studentId && s.CourseId == courseId)
+        {
+
+        }
     }
 }

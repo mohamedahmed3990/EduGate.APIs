@@ -28,7 +28,6 @@ namespace EduGate.APIs.Controllers
 
 
 
-
         // get attendance for student (app)
         [HttpGet("StudentAttendance")]
         public async Task<ActionResult<StudentAttendanceToReturnDto>> GetAttendanceForStudent(StudentAttendanceModel model)
@@ -73,7 +72,7 @@ namespace EduGate.APIs.Controllers
             });
 
             return Ok(groupedAttendance);
-           
+          
                 
         }
 
@@ -82,10 +81,11 @@ namespace EduGate.APIs.Controllers
         [HttpPost("takeAttendance")]
         public async Task<ActionResult> TakeAttendance(QrCodeData qrData)
         {
-            var spec = new StudentCourseSpecs(qrData.StudentId, qrData.CourseId, qrData.CourseId);
-            var studCourse = _unitOfWork.Repository<StudentCourseGroup>().GetByIdWithSpecAsync(spec);
+            var spec = new StudentCourseSpecs(qrData.StudentId, qrData.CourseId, qrData.GroupId);
 
-            if (studCourse is null) return NotFound(new ApiResponse(404, "student not found in this course group"));
+            var studCourse = await _unitOfWork.Repository<StudentCourseGroup>().GetByIdWithSpecAsync(spec);
+
+            if (studCourse is null) return NotFound(new ApiResponse(404, "Student not found in this course or group :|"));
 
 
             var existAttendance = await _attendanceRepo.GetAttedance(qrData.StudentId, qrData.CourseId, qrData.GroupId, qrData.LectureNumber);
@@ -93,6 +93,11 @@ namespace EduGate.APIs.Controllers
             if (existAttendance == null)
             {
                 return NotFound(new ApiResponse(404,"this record not found in attendacne list"));
+            }
+
+            if (existAttendance.Attend == true)
+            {
+                return Ok(new ApiResponse(200, "You're already there ;)"));
             }
 
             existAttendance.Attend = true;

@@ -29,23 +29,23 @@ namespace EduGate.APIs.Controllers
         {
             var student  = await _unitOfWork.Repository<Student>().GetByIdAsync(model.StudentId);
             if (student is null)
-                return NotFound(new ApiResponse(404));
+                return NotFound(new ApiResponse(404, "Student does not exist"));
 
              var course  = await _unitOfWork.Repository<Course>().GetByIdAsync(model.CourseId);
             if (course is null)
-                return NotFound(new ApiResponse(404));
+                return NotFound(new ApiResponse(404, "Course does not exist"));
 
              var group  = await _unitOfWork.Repository<Group>().GetByIdAsync(model.GroupId);
             if (group is null)
-                return NotFound(new ApiResponse(404));
+                return NotFound(new ApiResponse(404, "Group does not exist"));
 
-            var spec = new StudentCourseSpecs(model.StudentId, model.CourseId, model.GroupId);
+            var spec = new StudentCourseSpecs(model.StudentId, model.CourseId);
 
             var studentCourse = await _unitOfWork.Repository<StudentCourseGroup>().GetByIdWithSpecAsync(spec);
 
             if (studentCourse is not null)
             {
-                return BadRequest(new ApiResponse(400, "student aleady exist!!"));
+                return BadRequest(new ApiResponse(400, "student aleady exist in this course"));
             }
 
             var studentCourseGroup = new StudentCourseGroup()
@@ -55,13 +55,30 @@ namespace EduGate.APIs.Controllers
                 GroupId = model.GroupId
             };
 
-
             await _unitOfWork.Repository<StudentCourseGroup>().AddAsync(studentCourseGroup);
-            await _unitOfWork.CompleteAsync();
+            var count = await _unitOfWork.CompleteAsync();
 
+            if (count > 0)
+            {
+                for (int lectureNumber = 1; lectureNumber <= 14; lectureNumber++)
+                {
+                    var attendance = new Attendance
+                    {
+                        StudentId = studentCourseGroup.StudentId,
+                        CourseId = studentCourseGroup.CourseId,
+                        GroupId = studentCourseGroup.GroupId,
+                        LectureNumber = lectureNumber,
+                        Attend = false,
+                        Date = DateTime.Now,
+                    };
+
+                    await _unitOfWork.Repository<Attendance>().AddAsync(attendance);
+                    await _unitOfWork.CompleteAsync();
+                }
+
+                
+            }
             return Ok(new ApiResponse(200, "Student added to course group successfully"));
-
-            
         }
 
 
