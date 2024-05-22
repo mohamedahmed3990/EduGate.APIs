@@ -1,4 +1,5 @@
 ﻿using EduGate.Core.Entities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,6 +28,7 @@ namespace EduGate.Core.Repositories.Contract
         void Update(T entity);
         void Delete(T entity);
 
+        void DeleteAll(IEnumerable<T> entity);
 
     }
 }

@@ -1,5 +1,6 @@
 ﻿using EduGate.APIs.DTOs;
 using EduGate.APIs.Errors;
+using EduGate.Core;
 using EduGate.Core.Entities;
 using EduGate.Core.Entities.Identity;
 using EduGate.Core.Repositories.Contract;
@@ -22,15 +23,18 @@ namespace EduGate.APIs.Controllers
         private readonly IAuthService _authService;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IDoctorRepository _doctorRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
         public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager,
-            IAuthService authService,RoleManager<IdentityRole> roleManager, IDoctorRepository doctorRepository)
+            IAuthService authService,RoleManager<IdentityRole> roleManager, IDoctorRepository doctorRepository,
+            IUnitOfWork unitOfWork)
         {
             _userManager = userManager;
             _signInManager = signInManager;
            _authService = authService;
             _roleManager = roleManager;
             _doctorRepository = doctorRepository;
+            _unitOfWork = unitOfWork;
         } 
 
 
@@ -55,8 +59,8 @@ namespace EduGate.APIs.Controllers
             {
                 // Retrieve the doctor's ID from the database
                 var doctor = await _doctorRepository.GetbyUserId(user.Id);
-                if (doctor is null)
-                    return BadRequest(new ApiResponse(400, "Doctor information not found"));
+                if (doctor is null || doctor.IsActive == false)
+                    return Unauthorized(new ApiResponse(400));
 
                 var token = await _authService.CreateTokenAsync(user, _userManager, doctor.Id);
 
@@ -77,7 +81,7 @@ namespace EduGate.APIs.Controllers
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
                 Token = await _authService.CreateTokenAsync(user, _userManager)
-        });
+            });
         }
 
 
@@ -126,7 +130,7 @@ namespace EduGate.APIs.Controllers
 
 
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpPost("CreateUser")]
         public async Task<ActionResult> CreateUser(CreateUserModel userModel)
         {
@@ -152,6 +156,19 @@ namespace EduGate.APIs.Controllers
                 return BadRequest(new ApiResponse(400));
 
             await _userManager.AddToRoleAsync(user, userModel.Role);
+
+            if (userModel.Role.Contains("Doctor"))
+            {
+                var doctor = new Doctor()
+                {
+                    Name = userModel.DisplayName,
+                    UserName = user.Email.Split("@")[0],
+                    UserId = user.Id,
+                    IsActive = true
+                };
+                await _unitOfWork.Repository<Doctor>().AddAsync(doctor);
+                await _unitOfWork.CompleteAsync();
+            }
 
             return Ok(new UserAdminToReturnDto
             {
@@ -193,7 +210,6 @@ namespace EduGate.APIs.Controllers
             var doctorUser = doctors.Select(user => new DoctorAccountToReturnDto
             {
                 Name = user.DisplayName,
-                Id = user.Id,
                 UserName = user.UserName,
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
@@ -204,7 +220,6 @@ namespace EduGate.APIs.Controllers
             var adminUser = admins.Select(user => new DoctorAccountToReturnDto
             {
                 Name = user.DisplayName,
-                Id = user.Id,
                 UserName = user.UserName,
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,

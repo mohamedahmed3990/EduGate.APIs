@@ -122,6 +122,8 @@ namespace EduGate.APIs.Controllers
 
             var grouppedAttendance = attendance.GroupBy(a => a.StudentId).Select(group => new AttendanceToReturnDto
             {
+                CourseName = group.First().Course.CourseName,
+                GroupName = group.First().Group.GroupName,
                 StudentId = group.Key,
                 StudentName = group.First().Student.Name,
                 StudentAttend = group.Select(a => a.Attend).ToList()

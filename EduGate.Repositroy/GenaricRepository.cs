@@ -42,6 +42,9 @@ namespace EduGate.Repositroy
 
         public void Delete(T entity)
             => _dbContext.Remove(entity);
+        
+        public void DeleteAll(IEnumerable<T> entity)
+            => _dbContext.RemoveRange(entity);
 
         public async Task<T?> GetByIdWithSpecAsync(ISpecification<T> spec)
         {

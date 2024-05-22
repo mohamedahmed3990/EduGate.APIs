@@ -12,5 +12,6 @@ namespace EduGate.Core.Entities
         public string Name { get; set; }
         public bool IsActive { get; set; }
         public string? UserId { get; set; }
+        public string UserName { get; set; }
     }
 }

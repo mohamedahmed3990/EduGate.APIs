@@ -37,11 +37,20 @@ namespace EduGate.APIs.Controllers
 
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Doctor>>> GetDoctors()
+        public async Task<ActionResult<IEnumerable<DoctorToReturnDto>>> GetDoctors()
         {
             var doctors = await _unitOfWork.Repository<Doctor>().GetAllAsync();
             if (doctors is null) return NotFound(new ApiResponse(404));
-            return Ok(doctors);
+
+            
+            var doctorReturn = doctors.Select(d => new DoctorToReturnDto()
+            {
+                Name = d.Name,
+                UserName = d.UserName,
+                IsActive = d.IsActive
+            }).ToList();
+
+            return Ok(doctorReturn);
         }
 
 
@@ -145,6 +154,44 @@ namespace EduGate.APIs.Controllers
 
 
         }
+        
+        [HttpPost("DeleteCourseFromDoctor")]
+        public async Task<ActionResult> DeleteCourseToDoctor(DoctorCourseGorupModel model)
+        {
+            var doctor = await _unitOfWork.Repository<Doctor>().GetByIdAsync(model.DoctorId);
+            if (doctor is null)
+                return NotFound(new ApiResponse(404));
+
+            var course = await _unitOfWork.Repository<Course>().GetByIdAsync(model.CourseId);
+            if (course is null)
+                return NotFound(new ApiResponse(404));
+
+            var group = await _unitOfWork.Repository<Group>().GetByIdAsync(model.GroupId);
+            if (group is null)
+                return NotFound(new ApiResponse(404));
+
+            var spec = new DoctorCourseSepcs(model.DoctorId, model.CourseId, model.GroupId);
+
+            var doctorCourse = await _unitOfWork.Repository<DoctorCourseGroup>().GetByIdWithSpecAsync(spec);
+
+
+            if (doctorCourse is not null)
+            {
+                _unitOfWork.Repository<DoctorCourseGroup>().Delete(doctorCourse);
+                await _unitOfWork.CompleteAsync();
+            }
+                
+
+
+            return Ok(new ApiResponse(200, "Doctor deleted to course group successfully"));
+
+
+        }
+
+
+
+
+
 
 
 

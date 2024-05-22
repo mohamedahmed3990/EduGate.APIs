@@ -1,4 +1,5 @@
 ﻿using EduGate.Core.Entities;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
@@ -14,7 +15,7 @@ namespace EduGate.Repositroy.Data.Config
         public void Configure(EntityTypeBuilder<Doctor> builder)
         {
             builder.Property(d => d.Name).IsRequired();
-
+            builder.Property(d => d.UserName).IsRequired();
 
         }
     }

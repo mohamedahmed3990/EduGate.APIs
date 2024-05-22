@@ -102,6 +102,8 @@ namespace EduGate.APIs.Controllers
                 courses = group.Select(sc => new
                 {
                     coursename = sc.Course.CourseName,
+                    courseId = sc.CourseId,
+                    groupid = sc.GroupId,
                     group = sc.Group.GroupName
                 }).ToList()
             });
@@ -125,5 +127,44 @@ namespace EduGate.APIs.Controllers
 
             return Ok(mapped);
         }
+
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("DeleteCourseFromStudent")]
+        public async Task<ActionResult> DeleteStudentFromCourse(StudentCourseGroupModel model)
+        {
+            var spec = new StudentCourseSpecs(model.StudentId, model.CourseId, model.GroupId);
+
+            var studentCourse = await _unitOfWork.Repository<StudentCourseGroup>().GetByIdWithSpecAsync(spec);
+
+            if (studentCourse is null)
+            {
+                return NotFound(new ApiResponse(404));
+            }
+
+
+            try
+            {
+                _unitOfWork.Repository<StudentCourseGroup>().Delete(studentCourse);
+            }
+            catch 
+            {
+
+                return BadRequest(400);
+            }
+
+            var attendSpec = new AttendanceSpecs(model.StudentId, model.CourseId, model.GroupId);
+            var attendance = await _unitOfWork.Repository<Attendance>().GetAllByIdWithSpecAsync(attendSpec);
+            if (attendance is not null) 
+            {
+                 _unitOfWork.Repository<Attendance>().DeleteAll(attendance);
+                await _unitOfWork.CompleteAsync();
+            }
+
+            return Ok(new ApiResponse(200, "Course deleted from student successfully"));
+        }
+
     }
+
+
 }

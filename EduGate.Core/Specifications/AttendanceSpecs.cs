@@ -29,6 +29,8 @@ namespace EduGate.Core.Specifications
         public AttendanceSpecs(int courseId, int groupId) : base(a => a.CourseId == courseId && a.GroupId == groupId)
         {
             InCludes.Add(a => a.Student);
+            InCludes.Add(a => a.Course);
+            InCludes.Add(a => a.Group);
 
         }
 
