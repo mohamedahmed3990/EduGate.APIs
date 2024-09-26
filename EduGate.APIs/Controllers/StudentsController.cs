@@ -9,7 +9,7 @@ using System.Collections.Generic;
 
 namespace EduGate.APIs.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    //[Authorize(Roles = "Admin")]
     public class StudentsController : BaseApiController
     {
         private readonly IUnitOfWork _unitOfWork;

@@ -19,7 +19,7 @@ namespace EduGate.APIs.Controllers
 
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Course>> GetCourse(int id)
+        public async Task<ActionResult<Course>> GetCourse([FromRoute] int id)
         {
             var course = await _unitOfWork.Repository<Course>().GetByIdAsync(id);
 

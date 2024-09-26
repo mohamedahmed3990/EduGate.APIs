@@ -23,7 +23,7 @@ namespace EduGate.APIs.Controllers
             _mapper = mapper;
         }
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult> AddCourseToStudent(StudentCourseGroupModel model)
         {

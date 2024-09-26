@@ -120,17 +120,33 @@ namespace EduGate.APIs.Controllers
             var attendance = await _unitOfWork.Repository<Attendance>().GetAllWithSpecAsync(spec);
 
 
-            var grouppedAttendance = attendance.GroupBy(a => a.StudentId).Select(group => new AttendanceToReturnDto
-            {
-                CourseName = group.First().Course.CourseName,
-                GroupName = group.First().Group.GroupName,
-                StudentId = group.Key,
-                StudentName = group.First().Student.Name,
-                StudentAttend = group.Select(a => a.Attend).ToList()
-            }); 
+            ///var grouppedAttendance = attendance.GroupBy(a => a.StudentId).Select(group => new AttendanceToReturnDto
+            ///{
+            ///    CourseName = group.First().Course.CourseName,
+            ///    GroupName = group.First().Group.GroupName,
+            ///    StudentId = group.Key,
+            ///    StudentName = group.First().Student.Name,
+            ///    StudentAttend = group.Select(a => a.Attend).ToList()
+            ///}); 
+
+            var groupedAttendance = attendance
+                .GroupBy(a => new { a.Course.CourseName, a.Group.GroupName })
+                .Select(courseGroup => new 
+                {
+                CourseName = courseGroup.Key.CourseName,
+                GroupName = courseGroup.Key.GroupName,
+                Students = courseGroup
+                    .GroupBy(a => a.StudentId)
+                    .Select(studentGroup => new AttendanceToReturnDto
+                    {
+                        StudentId = studentGroup.Key,
+                        StudentName = studentGroup.First().Student.Name,
+                        StudentAttend = studentGroup.Select(a => a.Attend).ToList()
+                    }).ToList()
+                }).ToList();
 
 
-            return Ok(grouppedAttendance);
+            return Ok(groupedAttendance);
 
 
         }

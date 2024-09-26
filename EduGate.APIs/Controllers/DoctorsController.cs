@@ -37,20 +37,13 @@ namespace EduGate.APIs.Controllers
 
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<DoctorToReturnDto>>> GetDoctors()
+        public async Task<ActionResult<IEnumerable<Doctor>>> GetDoctors()
         {
             var doctors = await _unitOfWork.Repository<Doctor>().GetAllAsync();
             if (doctors is null) return NotFound(new ApiResponse(404));
 
-            
-            var doctorReturn = doctors.Select(d => new DoctorToReturnDto()
-            {
-                Name = d.Name,
-                UserName = d.UserName,
-                IsActive = d.IsActive
-            }).ToList();
 
-            return Ok(doctorReturn);
+            return Ok(doctors);
         }
 
 
@@ -80,26 +73,26 @@ namespace EduGate.APIs.Controllers
         }
 
 
-        [HttpPost("delete")]
-        public async Task<ActionResult<ApiResponse>> DeleteDoctor(int id)
-        {
-            try
-            {
-                var existingDoctor = await _unitOfWork.Repository<Doctor>().GetByIdAsync(id);
+        //[HttpPost("delete/{id}")]
+        //public async Task<ActionResult<ApiResponse>> DeleteDoctor([FromRoute] int id)
+        //{
+        //    try
+        //    {
+        //        var existingDoctor = await _unitOfWork.Repository<Doctor>().GetByIdAsync(id);
 
-                if (existingDoctor is null)
-                    return BadRequest(new ApiResponse(400, "Doctor Not exists"));
+        //        if (existingDoctor is null)
+        //            return BadRequest(new ApiResponse(400, "Doctor Not exists"));
 
-                _unitOfWork.Repository<Doctor>().Delete(existingDoctor);
-                await _unitOfWork.CompleteAsync();
+        //        _unitOfWork.Repository<Doctor>().Delete(existingDoctor);
+        //        await _unitOfWork.CompleteAsync();
 
-                return Ok(new ApiResponse(200, "Doctor deleted successfully"));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new ApiResponse(500, $"Internal server error: {ex.Message}"));
-            }
-        }
+        //        return Ok(new ApiResponse(200, "Doctor deleted successfully"));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, new ApiResponse(500, $"Internal server error: {ex.Message}"));
+        //    }
+        //}
 
 
         [HttpPost("update")]
@@ -191,10 +184,6 @@ namespace EduGate.APIs.Controllers
 
 
 
-
-
-
-
         [HttpGet("doctorCourse")]
         public async Task<ActionResult> GetAllDoctorCourseGroup()
         {
@@ -213,6 +202,8 @@ namespace EduGate.APIs.Controllers
                 courses = group.Select(sc => new
                 {
                     coursename = sc.Course.CourseName,
+                    courseId = sc.CourseId,
+                    groupId = sc.GroupId,
                     group = sc.Group.GroupName
                 }).ToList()
             });

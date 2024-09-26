@@ -130,7 +130,7 @@ namespace EduGate.APIs.Controllers
 
 
 
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPost("CreateUser")]
         public async Task<ActionResult> CreateUser(CreateUserModel userModel)
         {
@@ -181,6 +181,36 @@ namespace EduGate.APIs.Controllers
 
         }
 
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("DeleteUser/{email}")]
+        public async Task<ActionResult> DeleteUser([FromRoute]string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user is null)
+                return NotFound(new ApiResponse(404, "Account does not exist"));
+
+            var role = await _userManager.GetRolesAsync(user);
+            if (role.Contains("Doctor"))
+            {
+                
+                var doctor = _doctorRepository.GetbyUserId(user.Id);
+                if (doctor is null)
+                    return NotFound(new ApiResponse(404, "Doctor not found"));
+                 _unitOfWork.Repository<Doctor>().Delete(doctor.Result);
+                var results = await _userManager.DeleteAsync(user);
+                if (results.Succeeded)
+                    await _unitOfWork.CompleteAsync();
+                return Ok(new ApiResponse(200, "User deleted successfully"));
+
+            }
+
+            var result = await _userManager.DeleteAsync(user);
+            if (!result.Succeeded)
+                return StatusCode(500, new ApiResponse(500, "An error occurred while deleting the user"));
+
+            return Ok(new ApiResponse(200, "User deleted successfully"));
+        }
 
 
 
