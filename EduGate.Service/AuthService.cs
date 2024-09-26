@@ -21,7 +21,7 @@ namespace EduGate.Service
         {
             _configuration = configuration;
         }
-        public async Task<string> CreateTokenAsync(AppUser user, UserManager<AppUser> userManager)
+        public async Task<string> CreateTokenAsync(AppUser user, UserManager<AppUser> userManager, int? doctorId = null)
         {
             // private claims
             var authClaims = new List<Claim>()
@@ -33,6 +33,12 @@ namespace EduGate.Service
             var userRoles = await userManager.GetRolesAsync(user);
             foreach (var role in userRoles)
                 authClaims.Add(new Claim(ClaimTypes.Role, role));
+
+
+            if (doctorId.HasValue)
+            {
+                authClaims.Add(new Claim("DoctorId", doctorId.Value.ToString(), ClaimValueTypes.Integer)); // Add doctor's ID claim
+            }
 
             var authKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:SecretKey"]));
 

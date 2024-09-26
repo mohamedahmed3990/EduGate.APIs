@@ -22,80 +22,85 @@ namespace EduGate.APIs.Controllers
         }
 
 
-        [HttpPut("uploadfile")]
-        public async Task<ActionResult<ImagePathReturn>> UploadImage(IFormFile formFile, string studentId)
+
+        [HttpPost("uploadfile")]
+        public async Task<ActionResult<ImagePathReturn>> UploadImage(IFormFile file, string studentId)
         {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest(new ApiResponse(400, "No file uploaded"));
+            }
+
+            //1. get location folder path
+            string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\Upload\\student");
+
+            //2. get file name
+            string fileName = $"{studentId}.png";
+
+            //3. get file path
+            string filePath = Path.Combine(folderPath, fileName);
+
+            //4. save file with stream
+            var fileStream = new FileStream(filePath, FileMode.Create);
+            file.CopyTo(fileStream);
+
             try
             {
-                string Filepath = $"{_webHostEnvironment.WebRootPath}/Upload/student";
-                if (!System.IO.Directory.Exists(Filepath))
+                // Convert uploaded image to base64 string
+                byte[] imageBytes;
+                using (var memoryStream = new MemoryStream())
                 {
-                    System.IO.Directory.CreateDirectory(Filepath);
+                    await file.CopyToAsync(memoryStream);
+                    imageBytes = memoryStream.ToArray();
                 }
 
-
-                string imagepath = $"{Filepath}/{studentId}.png";
-                if (System.IO.File.Exists(imagepath))
+                string base64String = Convert.ToBase64String(imageBytes);
+                return Ok(new ImagePathReturn
                 {
-                    System.IO.File.Delete(imagepath);
-                }
-
-                using (FileStream stream = System.IO.File.Create(imagepath))
-                {
-                    await formFile.CopyToAsync(stream);
-                }
-
+                    ImageUrl = base64String,
+                    Message = "Image uploaded successfully :)"
+                });
             }
             catch (Exception ex)
             {
-                ApiResponse apiResponse = new ApiResponse(100, ex.Message);
-
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
-
-            var user = await _userManager.FindByNameAsync(studentId);
-            if (user is null) return BadRequest(new ApiResponse(400));
-
-            ImagePathReturn imageReturn = new ImagePathReturn()
-            {
-                ImageUrl = user.PictureUrl,
-                Message = "Image Uploaded Successfully"
-            };
-
-            return Ok(imageReturn);
-            
         }
 
-        [Authorize]
-        [HttpGet("GetImage")]
+
+
+        [HttpGet("getImage")]
         public async Task<ActionResult<ImagePathReturn>> GetImage(string studentId)
         {
-            string Imageurl = string.Empty;
+            string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\Upload\\student");
+            string fileName = $"{studentId}.png";
+            string filePath = Path.Combine(folderPath, fileName);
+
             try
             {
-                string Filepath = $"{_webHostEnvironment.WebRootPath}/Upload/student/";
-                string imagepath = $"{Filepath}/{studentId}.png";
-                if (System.IO.File.Exists(imagepath))
+                if (!System.IO.File.Exists(filePath))
                 {
-                    Imageurl = $"{_configuration["BaseUrl"]}/Upload/student/{studentId}.png";
+                    return NotFound(new ApiResponse(404, "image not found"));
                 }
-                else
+
+                byte[] imageBytes = await System.IO.File.ReadAllBytesAsync(filePath);
+
+                string base64String = Convert.ToBase64String(imageBytes);
+
+                return Ok(new ImagePathReturn
                 {
-                    return NotFound(new ApiResponse(404));
-                }
+                    ImageUrl = base64String,
+                    Message = "Image retrieved successfully"
+                });
             }
             catch (Exception ex)
             {
-                return BadRequest(new ApiExceptionResponse(500, ex.Message));
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
-
-            return Ok(new ImagePathReturn()
-            {
-                ImageUrl = Imageurl,
-                Message = "Image Returned Successfully"
-            });
         }
 
-        
+
+
     }
 }
 

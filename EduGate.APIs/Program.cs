@@ -1,9 +1,14 @@
 using EduGate.APIs.Errors;
 using EduGate.APIs.Extentions;
+using EduGate.APIs.Helper;
 using EduGate.APIs.Middlewares;
+using EduGate.Core;
 using EduGate.Core.Entities.Identity;
+using EduGate.Core.Repositories.Contract;
 using EduGate.Core.Services.Contract;
+using EduGate.Repositroy;
 using EduGate.Repositroy.Identity;
+using EduGate.Repositroy.Repositroies;
 using EduGate.Service;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -27,12 +32,12 @@ namespace EduGate.APIs
             webApplicationBuilder.Services.AddSwaggerGen();
 
 
-            //webApplicationBuilder.Services.AddDbContext<EduGateContext>(options =>
-            //{
-            //    options.UseSqlServer(webApplicationBuilder.Configuration.GetConnectionString("DefaultConnection"));
-            //});
-
-            webApplicationBuilder.Services.AddDbContext<AppIdentityDbContext>(options =>
+            ///webApplicationBuilder.Services.AddDbContext<EduGateContext>(options =>
+            ///{
+            ///    options.UseSqlServer(webApplicationBuilder.Configuration.GetConnectionString("DefaultConnection"));
+            ///});
+            
+            webApplicationBuilder.Services.AddDbContext<AppDbContext>(options =>
             {
                 options.UseSqlServer(webApplicationBuilder.Configuration.GetConnectionString("IdentityConnection"));
             });
@@ -57,7 +62,17 @@ namespace EduGate.APIs
                 };
             });
 
+            webApplicationBuilder.Services.AddScoped(typeof(IGenaricRepository<>), typeof(GenaricRepository<>));
+            webApplicationBuilder.Services.AddScoped(typeof(IDoctorRepository), typeof(DoctorRepository));
+            webApplicationBuilder.Services.AddScoped(typeof(IAttendanceRepository), typeof(AttendanceRepository));
+
+            webApplicationBuilder.Services.AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork));
+
             webApplicationBuilder.Services.AddHttpClient();
+
+            webApplicationBuilder.Services.AddAutoMapper(typeof(MappingProfile));
+
+
             #endregion
 
             var app = webApplicationBuilder.Build();
@@ -66,7 +81,7 @@ namespace EduGate.APIs
 
             var services = scope.ServiceProvider;
 
-            var _IdentityDbContext = services.GetRequiredService<AppIdentityDbContext>();
+            var _IdentityDbContext = services.GetRequiredService<AppDbContext>();
 
             var loggerFactory = services.GetRequiredService<ILoggerFactory>();
             var logger = loggerFactory.CreateLogger<Program>();
@@ -76,7 +91,8 @@ namespace EduGate.APIs
                 await _IdentityDbContext.Database.MigrateAsync();   // Update Database
 
                 var _userManager = services.GetRequiredService<UserManager<AppUser>>();
-                await AppIdentityDbContextSeed.SeedUserAsync(_userManager);
+
+                await AppDbContextSeed.SeedAsync(_IdentityDbContext);
             }
             catch (Exception ex)
             {
@@ -104,6 +120,7 @@ namespace EduGate.APIs
 
             app.UseHttpsRedirection();
 
+            app.UseCors(b => b.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
             app.MapControllers(); 
 

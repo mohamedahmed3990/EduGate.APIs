@@ -1,0 +1,206 @@
+[
+    {
+      "Code": "BSC110",
+      "CourseName": "Math 1"       
+    },
+    {
+        "Code": "BSC120",
+        "CourseName": "Math 2"      
+    },
+    {
+      "Code": "BSC210",
+      "CourseName": "Math 3"         
+    },
+    {
+        "Code": "BSC311",
+        "CourseName":"Data communication"   
+    },
+    {
+      "Code":"CSC322" ,
+      "CourseName":"computer network" 
+    },
+    {
+        "Code": "CSC416",
+        "CourseName": "network programing"  
+    },
+
+    {
+      "Code": "BSC124",
+      "CourseName": "physics"
+    },
+    {
+        "Code":"BSC113" ,
+        "CourseName": "Electronics 1"      
+    },
+    {
+      "Code": "CSC430",
+      "CourseName": "Pattern recognition"        
+    },
+    {
+        "Code": "BSC122",
+        "CourseName":"Electronics 2"          
+    },
+    {
+      "Code": "BSC215",
+      "CourseName":"logic design"          
+    },
+    {
+        "Code": "CSC324",
+        "CourseName": "prolog"         
+    },
+    {
+      "Code": "CSC415",
+      "CourseName":"compiler design"        
+    },
+    {
+        "Code": "CSC423",
+        "CourseName":"distributed system"    
+    },
+    {
+      "Code": "BSC222",
+      "CourseName":"statistical methods"  
+    },
+    {
+        "Code": "BSC220",
+        "CourseName": "operation research" 
+    },
+    {
+      "Code": "INF320",
+      "CourseName": "decision support system"
+    },
+    {
+        "Code": "CSC411",
+        "CourseName":"modeling and simulation"   
+    },
+    {
+      "Code": "BSC114",
+      "CourseName":"english 1" 
+    },
+    {
+        "Code": "BSC123",
+        "CourseName": "english 2"
+    },
+    {
+      "Code": "BSC214",
+      "CourseName": "english 3"
+         
+    },
+    {
+        "Code": "BSC320",
+        "CourseName":"english 4" 
+    },
+    {
+      "Code": "BSC410",
+      "CourseName": "english 5"
+    },
+    {
+        "Code": "PHE110",
+        "CourseName": "physical education"   
+    },   
+    {
+        "Code": "INF220",
+        "CourseName": "system analysis"   
+    },
+    {
+      "Code": "INF311",
+      "CourseName":"Database management systems 1" 
+    },
+    {
+        "Code": "INF310",
+        "CourseName": "system design"    
+    },
+    {
+      "Code": "CSC320",
+      "CourseName": "software 1"  
+    },
+    {
+        "Code": "CSC414",
+        "CourseName":"software 2"    
+    },
+    {
+      "Code": "BSC224",
+      "CourseName":"principles of economics"   
+    },
+    {
+        "Code": "BSC213",
+        "CourseName": "principles of management" 
+    },
+    {
+      "Code": "BSC112",
+      "CourseName":"introduction to computer graphics" 
+    },
+    {
+        "Code": "CSC110",
+        "CourseName": "introduction to computer application"
+    },
+    {
+      "Code": "CSC121",
+      "CourseName": "structured programing"    
+    },
+    {
+        "Code": "CSC310",
+        "CourseName":"computer interfaces"      
+    },
+    {
+      "Code": "CSC323",
+      "CourseName": "computer graphics"   
+    },
+    {
+        "Code": "CSC222",
+        "CourseName":"operation system" 
+    },
+    {
+      "Code": "INF210",
+      "CourseName": "data structures"    
+    },
+    {
+        "Code": "CSC210",
+        "CourseName": "oop"
+    },
+    {
+      "Code":"PHE220" ,
+      "CourseName": "physical education 2"  
+    },
+    {
+        "Code": "CSC412",
+        "CourseName": "Artificial intelligence"    
+    },
+    {
+      "Code": "CSC424",
+      "CourseName":"multimedia" 
+    },
+    {
+        "Code": "CSC420",
+        "CourseName": "expert system"
+    },
+    {
+      "Code": "CSC426",
+      "CourseName":"neural network" 
+    },
+    {
+        "Code": "FTR130",
+        "CourseName": "matlab"    
+    },
+    {
+      "Code": "CSC417",
+      "CourseName":"image processing"    
+    },
+    {
+        "Code": "INF221",
+        "CourseName":"file organization" 
+    },
+    {
+      "Code": "CSC313",
+      "CourseName":"Assembly language" 
+    },
+    {
+        "Code":"HUM110" ,
+        "CourseName":"culural course 1" 
+    },
+    {
+      "Code": "HUM320",
+      "CourseName": "culural course 2"  
+    }
+ 
+]
+
